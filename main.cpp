@@ -18,8 +18,8 @@ int main(){
         buff.BuffDetectTask(frame);
         t = ((double)getTickCount() - t) / getTickFrequency();
         //cout << "t:" << t << endl;
-        //double fps = 1.0 / t;
-        //cout << "fps:" << fps << endl;
+//        double fps = 1.0 / t;
+//        cout << "fps:" << fps << endl;
 
         char c = waitKey(1);
         if(c == 27)

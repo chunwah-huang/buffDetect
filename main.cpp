@@ -1,12 +1,12 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "buff_detect.h"
+#include "/home/hzh/QT_work/buff_detect/detect_buff/buff_detect.h"
 using namespace std;
 using namespace cv;
 
 int main(){
     VideoCapture cap;
-    cap.open("/home/hzh/视频/camera_13.avi");
+    cap.open("/home/hzh/QT_work/buff_detect/data/camera_13.avi");
     Mat frame;
     BuffDetector buff;
     while (true) {

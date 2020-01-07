@@ -19,4 +19,5 @@ HEADERS += \
 #    buff_detect.h \
 #    solve_pnp.h \
     detect_buff/buff_detect.h \
-    solve_buff/solve_pnp.h
+    solve_buff/solve_pnp.h \
+    base.h

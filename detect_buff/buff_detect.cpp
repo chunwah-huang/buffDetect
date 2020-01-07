@@ -199,16 +199,32 @@ int BuffDetector::BuffDetectTask(Mat &img){
 
         rectangle(img,roi,Scalar(0,255,200),2,8,0);
 
+        ++find_cnt;
+        if(find_cnt%2 == 0){//隔帧读数据
+            direction_tmp = getState();
+            if(find_cnt == 10)
+                find_cnt = 0;
+        }
+
         bool is_circle = FindCenterR(result_img, roi_img);
         if(is_circle == true){
+            double total;
             double theta = atan(double(target_center.y - circle_center.y) / (target_center.x - circle_center.x));
-            double total = (pre_angle+theta)*CV_PI/180;
+            if(direction_tmp != 0){
+                total = direction_tmp*(pre_angle+theta)*CV_PI/180;
+            }
+            else {
+                total = theta*CV_PI/180;
+            }
             double sin_calcu = sin(total);
             double cos_calcu = cos(total);
             Point2f round_center(circle_center.x+roi.tl().x, circle_center.y+roi.tl().y);
+
             pre_center.x = (target_center.x-round_center.x)*cos_calcu-(target_center.y-round_center.y)*sin_calcu+round_center.x;
             pre_center.y = (target_center.x-round_center.x)*sin_calcu+(target_center.y-round_center.y)*cos_calcu+round_center.y;
+
             double radio = point_Distance(round_center, pre_center);
+
             circle(img, round_center, radio, Scalar(0,255,125),2,8,0);
             circle(img, pre_center, 3, Scalar(255,0,0),3,8,0);
         }
@@ -216,21 +232,7 @@ int BuffDetector::BuffDetectTask(Mat &img){
 
         }
 
-        ++find_cnt;
-        if(find_cnt%2 == 0){//隔帧读数据
-            direction_tmp = getState();
-            if(find_cnt == 10)
-                find_cnt = 0;
-        }
-         if(direction_tmp == 1){//good
 
-        }
-        else if(direction_tmp == -1){//poor
-
-        }
-        else {//stay
-
-        }
     }
     //imshow("roi", result_img);
     //imshow("roi_img", roi_img);
@@ -246,10 +248,10 @@ int BuffDetector::getState(){
     if(fabs(diff_angle_)<10 && fabs(diff_angle_)>1e-6){
         d_angle_ = (1 - r) * d_angle_ + r * diff_angle_;
     }
-
-    if(d_angle_ > 1.5f)
+    //cout << "d_angle_:" << d_angle_ << endl;
+    if(d_angle_ > 1.5)
         return 1;
-    else if(d_angle_ < -1.5f)
+    else if(d_angle_ < -1.5)
         return -1;
     else
         return 0;

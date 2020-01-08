@@ -1,6 +1,5 @@
 #include "buff_detect.h"
 
-
 bool BuffDetector::ImageProcess(Mat & img){
 
     Mat gaussImg;
@@ -9,7 +8,7 @@ bool BuffDetector::ImageProcess(Mat & img){
     vector<Mat> bgr;
 
     split(gaussImg, bgr);
-    if(color_ == 0){
+    if(COLOR == 0){
         subtract(bgr[2], bgr[1], gaussImg);
     }
     else{
@@ -124,6 +123,7 @@ bool BuffDetector::ImageProcess(Mat & img){
             //circle(img, big_points_2d[1], 2, Scalar(0,255,255), 2, 8, 0);
             Point2f big_vector = final_target.small_rect_.center - final_target.big_rect_.center;
             roi_center = (big_points_2d[1]+big_points_2d[2])/2-big_vector;
+            solve_rect = final_target.small_rect_;
             //circle(img, roi_center, 2, Scalar(0,0,255), 2, 8, 0);
         }
     }
@@ -199,19 +199,19 @@ int BuffDetector::BuffDetectTask(Mat &img){
 
         rectangle(img,roi,Scalar(0,255,200),2,8,0);
 
-        ++find_cnt;
-        if(find_cnt%2 == 0){//隔帧读数据
-            direction_tmp = getState();
-            if(find_cnt == 10)
-                find_cnt = 0;
+        ++find_cnt_;
+        if(find_cnt_%2 == 0){//隔帧读数据
+            direction_tmp_ = getState();
+            if(find_cnt_ == 10)
+                find_cnt_ = 0;
         }
 
         bool is_circle = FindCenterR(result_img, roi_img);
         if(is_circle == true){
             double total;
             double theta = atan(double(target_center.y - circle_center.y) / (target_center.x - circle_center.x));
-            if(direction_tmp != 0){
-                total = direction_tmp*(pre_angle+theta)*CV_PI/180;
+            if(direction_tmp_ != 0){
+                total = direction_tmp_*(PRE_ANGLE+theta)*CV_PI/180;
             }
             else {
                 total = theta*CV_PI/180;
@@ -227,18 +227,41 @@ int BuffDetector::BuffDetectTask(Mat &img){
 
             circle(img, round_center, radio, Scalar(0,255,125),2,8,0);
             circle(img, pre_center, 3, Scalar(255,0,0),3,8,0);
+            line(img, pre_center, round_center, Scalar(0,255,255),2);
         }
         else{
+            Point2f vector_pre = big_points_2d[3] - big_points_2d[0];
+            if(direction_tmp_ != 0){
+                Point2f vector_center = target_center - direction_tmp_ * vector_pre * LENTH_R;
+                double theta = atan(double(vector_center.y - target_center.y) / (vector_center.x - target_center.x));
+                double total = (SMALL_PRE_ANGLE+theta)*CV_PI/180;
+                double sin_calcu = sin(total);
+                double cos_calcu = cos(total);
+                pre_center.x = (vector_center.x-target_center.x)*cos_calcu-(vector_center.y-target_center.y)*sin_calcu+target_center.x;
+                pre_center.y = (vector_center.x-target_center.x)*sin_calcu+(vector_center.y-target_center.y)*cos_calcu+target_center.y;
 
+                circle(img, pre_center, 3, Scalar(0,255,0),3,8,0);
+                line(img, target_center, pre_center, Scalar(255,123,0),2);
+                line(img, target_center, vector_center, Scalar(255,123,0),2);
+            }
+            else {
+                pre_center = target_center;
+            }
         }
 
+        solve_buff.run_SolvePnp(img, solve_rect, buff_angle_);
+        angle_x = solve_buff.angle_x;
+        angle_y = solve_buff.angle_y;
+        dist = solve_buff.dist;
+
+        cout << "angle_x:" << angle_x << "     angle_y:" << angle_y << "    dist:" << dist <<endl;
 
     }
     //imshow("roi", result_img);
     //imshow("roi_img", roi_img);
     imshow("bin", binImg);
     imshow("img", img);
-    //cout << direction_tmp << endl;
+    //cout << direction_tmp_ << endl;
     return common;
 }
 
@@ -246,7 +269,7 @@ int BuffDetector::getState(){
     diff_angle_ = buff_angle_ - last_angle;
     last_angle = buff_angle_;
     if(fabs(diff_angle_)<10 && fabs(diff_angle_)>1e-6){
-        d_angle_ = (1 - r) * d_angle_ + r * diff_angle_;
+        d_angle_ = (1 - R) * d_angle_ + R * diff_angle_;
     }
     //cout << "d_angle_:" << d_angle_ << endl;
     if(d_angle_ > 1.5)

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "../buff_detect/detect_buff/buff_detect.h"
+#include "/home/hzh/QT_work/buff_detect/detect_buff/buff_detect.h"
 using namespace std;
 using namespace cv;
 

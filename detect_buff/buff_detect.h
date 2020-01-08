@@ -1,10 +1,8 @@
 #ifndef BUFF_DETECT_H
 #define BUFF_DETECT_H
 
-#include <iostream>
-#include <opencv2/opencv.hpp>
-using namespace std;
-using namespace cv;
+#include"../buff_detect/base.h"
+#include"../buff_detect/solve_buff/solve_pnp.h"
 
 typedef enum{UNKOWN,INACTION,ACTION}ObjectType;
 class Object
@@ -28,9 +26,12 @@ public:
 class BuffDetector
 {
 public:
-    BuffDetector() {}
+    BuffDetector() {solve_buff = Solve_Buff();}
     ~BuffDetector(){}
     int BuffDetectTask(Mat & img);
+
+    float angle_x, angle_y, dist;
+
 private:
     bool ImageProcess(Mat & img);
     bool FindCenterR(Mat & bin_img, Mat &img);
@@ -44,20 +45,25 @@ private:
      Point2f circle_center;
      Point2f pre_center;
      Mat binImg;
+     RotatedRect solve_rect;
 
 
-private:
-    const int color_ = 1;
-    const int pre_angle = 20;
+//private:
+//    const int color_ = 1;
+//    const int pre_angle_ = 20;
+//    const int lenth_r_ = 1.2;
+//    const int small_pre_angle_ = 20;
 
 private://能量机关顺逆时针判断
-    const float r = 0.1;
+//    const float r_ = 0.1;
     float buff_angle_ = 0;
     float diff_angle_ = 0;
     float last_angle = 0;
     float d_angle_ = 0;
-    int find_cnt = 0;
-    int direction_tmp = 0;
+    int find_cnt_ = 0;
+    int direction_tmp_ = 0;
+private:
+    Solve_Buff solve_buff;
 };
 
 #endif // BUFF_DETECT_H

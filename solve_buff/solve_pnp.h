@@ -1,22 +1,22 @@
 #ifndef SOLVE_PNP_H
 #define SOLVE_PNP_H
 
-#include"base.h"
+#include"../buff_detect/base.h"
 
-typedef enum{NO, OFF}Solve_BuffType;
 class Solve_Buff{
 public:
     Solve_Buff();
-    ~Solve_Buff();
+    ~Solve_Buff(){}
+
     //调用解算函数
-    void run_SolvePnp(Mat & srcImg, RotatedRect & rect, float buff_angle, int pre_angle);
+    void run_SolvePnp(Mat & srcImg, RotatedRect & rect, float buff_angle);
 
     float angle_x, angle_y, dist;
 
 private:
     void vertex_Sort(RotatedRect & box);
     Mat camera_ptz(Mat & t);
-    void get_Angle(const Mat & pos_in_ptz, float buff_angle, int pre_angle);
+    void get_Angle(const Mat & pos_in_ptz, float buff_angle);
     void draw_Coordinate(Mat & input);
     //标定数据
     string file_path = XML_PATH;
@@ -27,16 +27,16 @@ private:
     vector<Point3f> armor3d;
     vector<Point2f> target2d;
 
-    const float ptz_camera_x = 0;
-    const float ptz_camera_y = 0;
-    const float ptz_camera_z = 0;
-    const float offset_y_barrel_ptz = 0;
+    float ptz_camera_x = 0;
+    float ptz_camera_y = 0;
+    float ptz_camera_z = 0;
+    float offset_y_barrel_ptz = 0;
 
     //装甲板单位mm
-    float w = 300;
-    float h = 170;
-    //射速
-    int model_type_ = NO;
+    float w = W;
+    float h = H;
+
 };
+
 
 #endif // SOLVE_PNP_H

@@ -12,13 +12,17 @@ using namespace cv;
 //敌方颜色 1蓝 0红
 #define COLOR 1
 
+//二值化阈值
+#define THRESHOLD 35
+
 //model 1固定模型 0实时测距
 #define MODEL 1
 
 //buff-pre(buff_detect.cpp)
 #define PRE_ANGLE 20
-#define LENTH_R 1.2
+#define SMALL_LENTH_R 1.2
 #define SMALL_PRE_ANGLE 20
+#define BIG_LENTH_R 5
 
 //buff-filter(buff_detect.cpp)
 #define R 0.1
